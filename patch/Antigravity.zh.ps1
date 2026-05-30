@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'SilentlyContinue'
+﻿$ErrorActionPreference = 'SilentlyContinue'
 
 $appDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $exe = Join-Path $appDir 'Antigravity.exe'
