@@ -507,7 +507,9 @@ TRANSLATOR_JS = r"""
 
 def read_targets():
     port = PORT_FILE.read_text(encoding="utf-8").splitlines()[0].strip()
-    with urllib.request.urlopen(f"http://127.0.0.1:{port}/json", timeout=3) as response:
+    proxy_handler = urllib.request.ProxyHandler({})
+    opener = urllib.request.build_opener(proxy_handler)
+    with opener.open(f"http://127.0.0.1:{port}/json", timeout=3) as response:
         return port, json.load(response)
 
 
@@ -531,34 +533,39 @@ def main():
                 time.sleep(0.5)
                 continue
             _, targets = read_targets()
-            target = next(
-                (
-                    item
-                    for item in targets
-                    if item.get("type") == "page"
-                    and str(item.get("url", "")).startswith("https://127.0.0.1")
-                    and item.get("webSocketDebuggerUrl")
-                ),
-                None,
-            )
-            if not target:
+            matching_targets = [
+                item
+                for item in targets
+                if item.get("type") == "page"
+                and str(item.get("url", "")).startswith("https://127.0.0.1")
+                and item.get("webSocketDebuggerUrl")
+            ]
+            if not matching_targets:
                 time.sleep(0.5)
                 continue
-            ws = websocket.create_connection(
-                target["webSocketDebuggerUrl"], timeout=5, suppress_origin=True
-            )
-            seq = 0
-            seq, _ = send(ws, seq, "Runtime.enable")
-            seq, result = send(
-                ws,
-                seq,
-                "Runtime.evaluate",
-                {"expression": TRANSLATOR_JS, "returnByValue": True},
-            )
-            ws.close()
-            value = result.get("result", {}).get("result", {}).get("value", {})
-            print(json.dumps(value, ensure_ascii=False))
-            return 0
+            
+            success_count = 0
+            for target in matching_targets:
+                try:
+                    ws = websocket.create_connection(
+                        target["webSocketDebuggerUrl"], timeout=5, suppress_origin=True
+                    )
+                    seq = 0
+                    seq, _ = send(ws, seq, "Runtime.enable")
+                    seq, result = send(
+                        ws,
+                        seq,
+                        "Runtime.evaluate",
+                        {"expression": TRANSLATOR_JS, "returnByValue": True},
+                    )
+                    ws.close()
+                    success_count += 1
+                except Exception as e:
+                    last_error = e
+            
+            if success_count > 0:
+                print(f"Successfully injected into {success_count} targets")
+                return 0
         except Exception as exc:
             last_error = exc
             time.sleep(0.75)
