@@ -556,6 +556,13 @@ def main():
                     )
                     seq = 0
                     seq, _ = send(ws, seq, "Runtime.enable")
+                    seq, _ = send(ws, seq, "Page.enable")
+                    seq, _ = send(
+                        ws,
+                        seq,
+                        "Page.addScriptToEvaluateOnNewDocument",
+                        {"source": TRANSLATOR_JS},
+                    )
                     seq, result = send(
                         ws,
                         seq,

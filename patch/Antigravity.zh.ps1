@@ -14,5 +14,5 @@ if (-not $mainProcess) {
   Start-Process -FilePath $exe -ArgumentList '--lang=zh-CN', '--remote-debugging-port=0' -WorkingDirectory $appDir
 }
 
-Start-Sleep -Seconds 2
+Start-Sleep -Seconds 5
 python $injector | Out-Null
