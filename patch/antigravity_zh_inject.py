@@ -359,7 +359,14 @@ TRANSLATOR_JS = r"""
     "Subagents": "子智能体",
     "Files Changed": "更改的文件",
     "Background Tasks": "后台任务",
-    "Review Changes": "审阅更改"
+    "Review Changes": "审阅更改",
+    "Gemini Models": "Gemini 模型",
+    "Claude and GPT models": "Claude 及 GPT 模型",
+    "Weekly Limit": "周度额度",
+    "Five Hour Limit": "5 小时额度",
+    "Within each group, models share a weekly limit and a 5-hour limit. Quota is consumed proportionally to the cost of the tokens. Thus, limits will last longer with shorter tasks or using more cost-effective models. The 5-hour limit smooths out aggregate demand to fairly distribute global capacity across all users, while your weekly limit is tied directly to your individual tier.": "在每个分组中，模型共享周度额度和 5 小时额度。额度会根据 Token 的成本按比例消耗。因此，使用更具成本效益的模型或执行较短的任务时，额度将更加耐用。5 小时额度可以平滑总体需求，以便在所有用户之间公平地分配全局算力，而您的周度额度则直接与您的个人等级挂钩。",
+    "You have not used any of your weekly limit.": "您尚未使用任何周度额度。",
+    "You have not used any of your 5-hour limit.": "您尚未使用任何 5 小时额度。"
   }));
 
   const rewriters = [
@@ -368,6 +375,10 @@ TRANSLATOR_JS = r"""
     [/^(\d+)\s*m$/i, "$1 分钟"],
     [/^(\d+)\s*h$/i, "$1 小时"],
     [/^(\d+)\s*d$/i, "$1 天"],
+    [/^You have used some of your weekly limit, it will fully refresh in (.+)\.$/i, "您已使用了部分周度额度，将在 $1 后完全刷新。"],
+    [/^You have used some of your 5-hour limit, it will fully refresh in (.+)\.$/i, "您已使用了部分 5 小时额度，将在 $1 后完全刷新。"],
+    [/^You have hit your 5-hour limit, so the weekly limit does not currently apply\. Your 5-hour limit will refresh in (.+)\.$/i, "您已用尽了 5 小时额度，因此周度额度暂不适用。您的 5 小时额度将在 $1 后刷新。"],
+    [/^You have hit your 5-hour limit, it will refresh in (.+)\. If on a supported paid plan, you can use AI credits in the interim\.$/i, "您已用尽了 5 小时额度，将在 $1 后刷新。如果您订阅了支持的付费计划，期间可以使用 AI 积分。"],
     [/^(\d+)\s*s$/i, "$1 秒"],
     [/^(\d+)\s*w$/i, "$1 周"],
     [/^(\d+)\s*mo$/i, "$1 个月"],
